@@ -1,0 +1,6 @@
+# Claude Code Offline - structured config (copy to config.yaml; git-ignored)
+engine:
+  backend: unsloth        # future value: dmr (macOS, Docker Model Runner)
+  profile: cpu            # cpu | igpu
+  diagnostic_port: 18400  # published on 127.0.0.1 only
+# Pinned versions (Unsloth, Claude Code, model) are added in later steps.

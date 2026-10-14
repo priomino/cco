@@ -1,0 +1,67 @@
+# Claude Code Offline - compose project "cco".
+# Always run through scripts\windows\*.ps1 (they pass --env-file config\.env and the profile).
+name: cco
+
+x-engine-env: &engine-env
+  PATH: /home/cco/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  HF_HUB_DISABLE_TELEMETRY: "1"
+  UNSLOTH_STUDIO_DISABLE_PUBLIC_CHECK: "1"
+  UNSLOTH_HELPER_MODEL_DISABLE: "1"
+  UNSLOTH_DISABLE_UPDATE_CHECK: "1"
+  UNSLOTH_DISABLE_STATISTICS: "1"
+  UNSLOTH_STUDIO_PASSWORD: ${CCO_STUDIO_PASSWORD:?CCO_STUDIO_PASSWORD is not set in config/.env}
+
+services:
+  engine-cpu:
+    image: ${CCO_ENGINE_IMAGE:-cco-engine}:cpu
+    container_name: cco-engine-cpu
+    profiles: ["cpu"]
+    user: "1000:1000"
+    restart: "no"
+    labels:
+      com.claude-code-offline.project: cco
+      com.claude-code-offline.component: engine
+    environment: *engine-env
+    command:
+      - unsloth
+      - run
+      - -hf
+      - /models/${CCO_MODEL_FILE:-Qwen2.5-7B-Instruct-Q4_K_M.gguf}
+      - --context-length
+      - "${CCO_ENGINE_CONTEXT:-32768}"
+      - --parallel
+      - "1"
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8888"
+      - --api-only
+      - --disable-tools
+      - --speculative-type
+      - "off"
+      - --temperature
+      - "${CCO_ENGINE_TEMPERATURE:-0.7}"
+    healthcheck:
+      # healthy = the model is loaded: /v1/models lists a model (the web server and /api/health answer earlier; see D15)
+      test: ["CMD-SHELL", "K=$$(cat /home/cco/.unsloth/studio/auth/.cli_api_key_cli_* 2>/dev/null | grep -o 'sk-unsloth-[A-Za-z0-9_-]*' | head -1); curl -sf --max-time 5 -H \"Authorization: Bearer $$K\" http://127.0.0.1:8888/v1/models | grep -q 'id.:'"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 90s
+    volumes:
+      - cco_models:/models:ro
+    networks:
+      cco_net:
+        aliases: [engine]
+
+networks:
+  cco_net:
+    name: cco_net
+    internal: true   # no route to the internet: the stack must work offline
+    labels:
+      com.claude-code-offline.project: cco
+
+volumes:
+  cco_models:
+    external: true
+    name: cco_models

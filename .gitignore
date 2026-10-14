@@ -1,0 +1,18 @@
+# secrets and local config
+.env
+config/config.yaml
+# model weights and caches
+models/
+*.gguf
+.studio/
+# logs and script reports
+*.log
+*-report.txt
+
+# --- release hygiene
+*.part
+*.out
+*.err
+Thumbs.db
+.vscode/
+.idea/

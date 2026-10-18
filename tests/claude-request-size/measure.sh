@@ -165,7 +165,7 @@ run_cfg() {   # $1 label, $2 auth mode (token|apikey), rest: extra env assignmen
   local -a envargs=(-u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN)
   local kv
   for kv in $COMMON "CLAUDE_CONFIG_DIR=/tmp/cfg-$label" "$@"; do envargs+=("$kv"); done
-  if [ "$mode" = "apikey" ]; then envargs+=("ANTHROPIC_API_KEY=sk-unsloth-stubtoken"); else envargs+=("ANTHROPIC_AUTH_TOKEN=sk-unsloth-stubtoken"); fi
+  if [ "$mode" = "apikey" ]; then envargs+=("ANTHROPIC_API_KEY=stub-token-not-a-real-key"); else envargs+=("ANTHROPIC_AUTH_TOKEN=stub-token-not-a-real-key"); fi
   cd /tmp/demo
   env "${envargs[@]}" timeout 120 claude -p "Say hello in one word." --output-format json $CLAUDE_FLAGS > "/tmp/out-$label.txt" 2> "/tmp/err-$label.txt" < /dev/null
   echo "  claude exit code: $?"

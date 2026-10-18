@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.1] - 2026-10-18
+- Fixed: gitattributes now forces LF line endings, so a clone on Windows no longer breaks docker/claude/entrypoint.sh.
+- Fixed: the request-size stub test no longer uses a key-shaped dummy token (release check false positive).
+
 ## [1.0.0] - 2026-10-14
 
 First release. Windows 11, CPU only.
@@ -15,3 +19,7 @@ First release. Windows 11, CPU only.
 
 ### Not included
 - GPU acceleration (no usable Vulkan driver for the integrated GPU in the container), macOS and Linux hosts, access to the engine from the host, parallel Claude Code sessions. See `docs/07-roadmap.md`.
+
+## v1.1.0 (in progress)
+- Parameter inventory of llama-server, Unsloth and Claude Code (build log step 30); environment pass-through experiment (step 31).
+- Unsloth extra-arguments mechanism found by source scan (build log step 32); load schema inspection (step 33).

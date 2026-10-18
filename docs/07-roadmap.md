@@ -11,3 +11,23 @@
 
 ## Status
 v1.0.0 is released (Windows 11, CPU only). Next: macOS through a Docker Model Runner backend; iGPU acceleration if a working route is found; the two parked items above.
+
+## Target: v1.1.0 (planned 2026-10-16; branch v1.1)
+Scope, set by the owner after the v1.0.0 release:
+1. Host access to Unsloth (parked item 1 above).
+2. Several Claude Code sessions at the same time (parked item 2 above).
+3. Support for all native Unsloth model-loading parameters (some may need another or a separate model; unsupported-here parameters are kept for the future, with a status).
+4. Support for llama.cpp parameters that Unsloth does not expose.
+5. Support for all Claude Code run parameters.
+6. Claude Code configuration per project it runs.
+7. A tuning script: analyse the system, test the parameters found earlier, pick the best-performing model and parameters; the speed target is adjustable (initial target: 10+ tokens per second).
+
+Phases: A inventory of the option surfaces and an experiment on environment-variable pass-through; B engine parameter layer; C Claude Code parameter layer and per-project configuration; D gateway for host access and parallel sessions; E tuner with a mandatory quality gate (tool-calling conformance and file-creation tests); F release. Existing `.env` files and commands must keep working.
+
+Physics note for item 7: generation speed on CPU is limited by memory bandwidth (about 25 GB/s measured, so a 4.4 GB model tops out near 5.7 tokens per second); 10+ tokens per second needs a model that reads about 2.5 GB or less per token (a 3B-class model, a mixture-of-experts model with few active parameters, or speculative decoding). Whether such models still pass the tool-calling gate is to be measured.
+
+### Decisions taken (owner, 2026-10-16)
+- Host access means the **Unsloth Studio web interface** only (not the API): the engine is started without `--api-only` when the interface is enabled, and a gateway container on a second network publishes it on 127.0.0.1 only; the engine itself stays on the internal network.
+- "t/s" means tokens per second. The tuner has two adjustable targets: generation speed (default 10) and prompt-processing speed (default: measured and reported, no minimum); the generation target decides the selection.
+- The tuner's download mode is a setting: `one-by-one` (default: download a candidate, test it, delete it unless it is the best so far) or `all`.
+- Scope of per-project settings (Claude Code side only, or also an engine profile per project): pending the owner's choice.
